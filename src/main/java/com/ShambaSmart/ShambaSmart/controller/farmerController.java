@@ -1,7 +1,9 @@
 package com.ShambaSmart.ShambaSmart.controller;
 
+import com.ShambaSmart.ShambaSmart.dto.farmerDto;
 import com.ShambaSmart.ShambaSmart.model.Farmer;
 import com.ShambaSmart.ShambaSmart.service.FarmerService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,20 +28,21 @@ public class farmerController {
 
     // Method to retrieve all farmers
     @GetMapping("/farmers")
-    public List<Farmer> getAllFarmers() {
+    public List<farmerDto> getAllFarmers() {
         return farmerService.getAllFarmers();
     }
 
+    // Method to create a new farmer
     @PostMapping("/farmers")
-    public Farmer createFarmer(Farmer farmer) {
-        return farmerService.createFarmer(farmer);
+    public Farmer createFarmer(@Valid farmerDto farmerDTO) {
+        return farmerService.CreateFarmer(farmerDTO);
     }
 
 
     // Method to update a farmer's information
     @PostMapping("/farmers/update")
-    public Farmer updateFarmer(Farmer farmer) {
-        return farmerService.updateFarmer(farmer);
+    public Farmer updateFarmer(farmerDto farmerDto) {
+        return farmerService.updateFarmer(farmerDto);
     }
 
     // Method to delete a farmer by ID
