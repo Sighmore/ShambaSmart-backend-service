@@ -1,8 +1,8 @@
 package com.ShambaSmart.ShambaSmart.service;
 
 
-import aj.org.objectweb.asm.commons.Remapper;
 import com.ShambaSmart.ShambaSmart.dto.farmerDto;
+import com.ShambaSmart.ShambaSmart.mapper.FarmerMapper;
 import com.ShambaSmart.ShambaSmart.model.Farmer;
 import com.ShambaSmart.ShambaSmart.repository.FarmerRepository;
 import jakarta.validation.Valid;
@@ -14,9 +14,18 @@ import java.util.List;
 @Service
 public class FarmerService {
 
-    //inject the FarmerRepository here
-    @Autowired
-    private FarmerRepository farmerRepository;
+    // DI of the FarmerRepository and FarmerMapper classes
+    private final FarmerRepository farmerRepository;
+    private final FarmerMapper farmerMapper;
+
+    // Constructor: Autowired the FarmerRepository and FarmerMapper
+    //why @Autowired is used here?
+    // It is used to inject the dependencies of FarmerRepository and FarmerMapper into the FarmerService class.
+    public FarmerService(@Autowired FarmerRepository farmerRepository, @Autowired FarmerMapper farmerMapper) {
+        this.farmerRepository = farmerRepository;
+        this.farmerMapper = farmerMapper;
+    }
+
 
     /**
      * createFarmer method to save a farmer to the database.
@@ -26,13 +35,8 @@ public class FarmerService {
         if (farmerRepository.existsByEmail(farmerDTO.getEmail())) {
             throw new IllegalArgumentException("Farmer with email " + farmerDTO.getEmail() + " already exists.");
         }
-        Farmer farmer = new Farmer();
-        farmer.setName(farmerDTO.getName());
-        farmer.setEmail(farmerDTO.getEmail());
-        farmer.setPhoneNumber(farmerDTO.getPhoneNumber());
-        farmer.setRegion(farmerDTO.getLocation());
-        farmer.setFarmSize(farmerDTO.getFarmSize());
-        farmer.setCropType(farmerDTO.getCropType());
+        // Convert farmerDto to Farmer entity using the FarmerMapper and save it to the database
+        Farmer farmer = farmerMapper.toEntity(farmerDTO);
         return farmerRepository.save(farmer);
     }
 
@@ -57,27 +61,22 @@ public class FarmerService {
     }
 
   /**
-   * The method uses the `stream` API to transform `Farmer` entities into `farmerDto` objects
-   * for improved readability and maintainability. The `stream` approach aligns with functional
-   * programming principles, ensuring immutability and declarative code. It also scales better
-   * for processing large datasets compared to manual iteration. Throwing an exception when no
-   * farmers are found enforces robust error handling, preventing invalid responses.
+    * getAllFarmers: retrieves all farmers from the database.
+   * If no farmers are found, it throws an exception.
+   * This method utilizes Java Streams to convert List<Farmer> to List<farmerDto>
+   * this approach is concise and efficient for transforming large data.
    */
     public List<farmerDto> getAllFarmers() {
+
         List<Farmer> farmers = farmerRepository.findAll();
         if (farmers.isEmpty()) {
             throw new IllegalArgumentException("No farmers found in the database.");
         }
+        // Convert List<Farmer> to List<farmerDto> using Java Streams and the FarmerMapper
         return farmers.stream()
-                .map(farmer -> new farmerDto(
-                        farmer.getName(),
-                        farmer.getEmail(),
-                        farmer.getPhoneNumber(),
-                        farmer.getRegion(),
-                        farmer.getFarmSize(),
-                        farmer.getCropType()
-                ))
+                .map(farmerMapper::toDto)
                 .toList();
+
     }
 
 
@@ -91,12 +90,13 @@ public Farmer updateFarmer(@NotNull farmerDto farmerDTO) {
     if (existingFarmer == null) {
         throw new IllegalArgumentException("Farmer with email " + farmerDTO.getEmail() + " does not exist.");
     }
+    // update the existing farmer's information with the new data from farmerDTO using the FarmerMapper
     existingFarmer.setName(farmerDTO.getName());
     existingFarmer.setPhoneNumber(farmerDTO.getPhoneNumber());
     existingFarmer.setRegion(farmerDTO.getLocation());
     existingFarmer.setFarmSize(farmerDTO.getFarmSize());
     existingFarmer.setCropType(farmerDTO.getCropType());
-
+    // Save the updated farmer entity back to the database
     return farmerRepository.save(existingFarmer);
 }
 }

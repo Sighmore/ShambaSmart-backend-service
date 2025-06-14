@@ -41,7 +41,7 @@ public class farmerController {
 
     // Method to update a farmer's information
     @PostMapping("/farmers/update")
-    public Farmer updateFarmer(farmerDto farmerDto) {
+    public Farmer updateFarmer(@Valid farmerDto farmerDto) {
         return farmerService.updateFarmer(farmerDto);
     }
 

@@ -40,6 +40,7 @@ public class ErrorHandler implements ErrorController {
     /**
      * Handles all other exceptions: this is used for handling unexpected errors
      * @return a generic error response
+     *
      */
     @RequestMapping("/error")
     public ResponseEntity<Map<String, String>> handleError() {

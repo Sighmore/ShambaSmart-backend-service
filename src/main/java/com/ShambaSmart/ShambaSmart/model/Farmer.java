@@ -1,12 +1,13 @@
 package com.ShambaSmart.ShambaSmart.model;
 
 import jakarta.persistence.*;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
-@Setter
-@Getter
+@Data
 @Entity
+@Table(name = "farmers")
 public class Farmer {
 
     // Getters and Setters
