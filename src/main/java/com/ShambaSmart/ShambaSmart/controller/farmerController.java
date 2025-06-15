@@ -1,19 +1,22 @@
 package com.ShambaSmart.ShambaSmart.controller;
 
 import com.ShambaSmart.ShambaSmart.dto.farmerDto;
+import com.ShambaSmart.ShambaSmart.model.ApiResponse;
 import com.ShambaSmart.ShambaSmart.model.Farmer;
 import com.ShambaSmart.ShambaSmart.service.FarmerService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping
+@RequestMapping("/farmers")
+@Tag(name = "Farmer Management", description = "APIs for managing farmers")
 public class farmerController {
 
     // dependency injection of the FarmerService
@@ -21,34 +24,44 @@ public class farmerController {
     private FarmerService farmerService;
 
     // Method to retrieve a farmer by ID
-    @GetMapping("/farmer/{id}")
+    @Operation(summary = "Fetch a farmer by ID", description = "Retrieves a farmer by their ID")
+    @GetMapping("/fetch/{id}")
     public Farmer getFarmerById(Long id){
         return   farmerService.getFarmerById(id);
     }
 
     // Method to retrieve all farmers
-    @GetMapping("/farmers")
-    public List<farmerDto> getAllFarmers() {
-        return farmerService.getAllFarmers();
+    @Operation(summary = "Fetch all farmers", description = "Retrieves a list of all farmers")
+    @GetMapping("/fetch")
+    public ResponseEntity<ApiResponse<List<farmerDto>>> getAllFarmers() {
+        List<farmerDto> farmers = farmerService.getAllFarmers();
+        return ResponseEntity.ok(new ApiResponse<>("List of all farmers", farmers, true));
     }
 
-    // Method to create a new farmer
-    @PostMapping("/farmers")
-    public Farmer createFarmer(@Valid farmerDto farmerDTO) {
-        return farmerService.CreateFarmer(farmerDTO);
+    // Method to create a new farmer then craft a response utilizing the API response model
+    @Operation(summary = "Create a new farmer", description = "Creates a new farmer and returns the created farmer object")
+    @PostMapping("/create")
+    public ResponseEntity<ApiResponse<Farmer>> createFarmer(@RequestBody @Valid farmerDto farmerDTO) {
+        Farmer farmer = farmerService.CreateFarmer(farmerDTO);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new ApiResponse<>("Farmer created successfully", farmer, true));
     }
 
 
     // Method to update a farmer's information
-    @PostMapping("/farmers/update")
-    public Farmer updateFarmer(@Valid farmerDto farmerDto) {
-        return farmerService.updateFarmer(farmerDto);
+    @Operation(summary = "Update an existing farmer", description = "Updates the details of an existing farmer and returns the updated farmer object")
+    @PostMapping("/update")
+    public ResponseEntity<ApiResponse<Farmer>> updateFarmer(@RequestBody @Valid farmerDto farmerDto) {
+        Farmer updatedFarmer = farmerService.updateFarmer(farmerDto);
+        return ResponseEntity.ok(new ApiResponse<>("Farmer updated successfully", updatedFarmer, true));
     }
 
     // Method to delete a farmer by ID
-    @PostMapping("/farmers/delete/{id}")
-    public void deleteFarmer(Long id) {
+    @Operation(summary = "Delete a farmer", description = "Deletes a farmer by ID and returns a success message")
+    @PostMapping("/delete/{id}")
+    public ResponseEntity<ApiResponse<String>> deleteFarmer(@PathVariable Long id) {
         farmerService.deleteFarmer(id);
+        return ResponseEntity.ok(new ApiResponse<>("Farmer deleted successfully", "Deleted farmer with ID: " + id, true));
     }
 
 }

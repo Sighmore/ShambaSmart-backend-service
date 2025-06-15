@@ -31,7 +31,7 @@ public class FarmerService {
      * createFarmer method to save a farmer to the database.
      * Throws an exception if a farmer with the same email.
      */
-    public Farmer CreateFarmer(@Valid @NotNull farmerDto farmerDTO) {
+    public Farmer CreateFarmer(farmerDto farmerDTO) {
         if (farmerRepository.existsByEmail(farmerDTO.getEmail())) {
             throw new IllegalArgumentException("Farmer with email " + farmerDTO.getEmail() + " already exists.");
         }
