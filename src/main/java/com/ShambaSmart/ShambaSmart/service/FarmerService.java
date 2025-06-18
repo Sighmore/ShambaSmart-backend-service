@@ -6,20 +6,24 @@ import com.ShambaSmart.ShambaSmart.mapper.FarmerMapper;
 import com.ShambaSmart.ShambaSmart.model.Farmer;
 import com.ShambaSmart.ShambaSmart.repository.FarmerRepository;
 import jakarta.validation.Valid;
+import lombok.val;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.logging.Logger;
 
 @Service
 public class FarmerService {
+
+    // Logger for logging information: SLF4J is used for logging in this service class
+    private static final Logger logger = (Logger) LoggerFactory.getLogger(FarmerService.class);
 
     // DI of the FarmerRepository and FarmerMapper classes
     private final FarmerRepository farmerRepository;
     private final FarmerMapper farmerMapper;
 
-    // Constructor: Autowired the FarmerRepository and FarmerMapper
-    //why @Autowired is used here?
     // It is used to inject the dependencies of FarmerRepository and FarmerMapper into the FarmerService class.
     public FarmerService(@Autowired FarmerRepository farmerRepository, @Autowired FarmerMapper farmerMapper) {
         this.farmerRepository = farmerRepository;
@@ -36,6 +40,7 @@ public class FarmerService {
             throw new IllegalArgumentException("Farmer with email " + farmerDTO.getEmail() + " already exists.");
         }
         // Convert farmerDto to Farmer entity using the FarmerMapper and save it to the database
+        logger.info("Creating farmer with email: {}");
         Farmer farmer = farmerMapper.toEntity(farmerDTO);
         return farmerRepository.save(farmer);
     }
@@ -54,6 +59,7 @@ public class FarmerService {
      */
     public void deleteFarmer(Long id) {
         if (farmerRepository.findById(id).isPresent()) {
+            logger.info("Deleting farmer with ID: {}");
             farmerRepository.deleteById(id);
         }else{
             throw new IllegalArgumentException("Farmer with ID " + id + " does not exist.");

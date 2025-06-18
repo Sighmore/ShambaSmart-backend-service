@@ -7,6 +7,9 @@ import com.ShambaSmart.ShambaSmart.service.FarmerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.val;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +22,10 @@ import java.util.List;
 @Tag(name = "Farmer Management", description = "APIs for managing farmers")
 public class farmerController {
 
+
+    // logger
+    private static final Logger logger = LoggerFactory.getLogger(farmerController.class);
+
     // dependency injection of the FarmerService
     @Autowired
     private FarmerService farmerService;
@@ -27,6 +34,7 @@ public class farmerController {
     @Operation(summary = "Fetch a farmer by ID", description = "Retrieves a farmer by their ID")
     @GetMapping("/fetch/{id}")
     public Farmer getFarmerById(Long id){
+        logger.info("Fetching farmer with ID: {}", id);
         return   farmerService.getFarmerById(id);
     }
 
@@ -35,6 +43,7 @@ public class farmerController {
     @GetMapping("/fetch")
     public ResponseEntity<ApiResponse<List<farmerDto>>> getAllFarmers() {
         List<farmerDto> farmers = farmerService.getAllFarmers();
+        logger.info("Fetching all farmers, total count: {}", farmers.size());
         return ResponseEntity.ok(new ApiResponse<>("List of all farmers", farmers, true));
     }
 
@@ -43,6 +52,7 @@ public class farmerController {
     @PostMapping("/create")
     public ResponseEntity<ApiResponse<Farmer>> createFarmer(@RequestBody @Valid farmerDto farmerDTO) {
         Farmer farmer = farmerService.CreateFarmer(farmerDTO);
+        logger.info("Farmer created with Email: {}", farmer.getEmail());
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new ApiResponse<>("Farmer created successfully", farmer, true));
     }
@@ -53,6 +63,7 @@ public class farmerController {
     @PostMapping("/update")
     public ResponseEntity<ApiResponse<Farmer>> updateFarmer(@RequestBody @Valid farmerDto farmerDto) {
         Farmer updatedFarmer = farmerService.updateFarmer(farmerDto);
+        logger.info("Farmer updated with Email: {}", updatedFarmer.getEmail());
         return ResponseEntity.ok(new ApiResponse<>("Farmer updated successfully", updatedFarmer, true));
     }
 
@@ -61,6 +72,7 @@ public class farmerController {
     @PostMapping("/delete/{id}")
     public ResponseEntity<ApiResponse<String>> deleteFarmer(@PathVariable Long id) {
         farmerService.deleteFarmer(id);
+        logger.info("Farmer deleted with ID: {}", id);
         return ResponseEntity.ok(new ApiResponse<>("Farmer deleted successfully", "Deleted farmer with ID: " + id, true));
     }
 
